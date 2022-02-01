@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+// Строка 2000 - смена количества аплинковых портов на балансере
+
+using System;
 using Visio = Microsoft.Office.Interop.Visio;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
@@ -1436,7 +1439,7 @@ namespace VeryFirstProject
                         else intMgmtPortOnChassis = 4;
 
 
-
+                        //intMgmtPortOnChassis = 3;                                             // Количество MGMT-портов IBS1UP
                         // Рисуем порты Mgmt на шасси.
                         for (int intIbs1upCurrentPortMgmt = 1; intIbs1upCurrentPortMgmt <= intMgmtPortOnChassis; intIbs1upCurrentPortMgmt++)
                         {
@@ -1800,6 +1803,16 @@ namespace VeryFirstProject
                     //Console.WriteLine($"На последнем балансировщике {intCurrentBalancerChassis} последний порт {intCurrentPortInChassis}.");
                 };
 
+                // Крестуем IS40
+                bool boolBypassCross = true;
+
+                if (boolBypassCross)
+                    for (int intCurrentBalancer = 1; intCurrentBalancer <= intTotalBalancers; intCurrentBalancer++)
+                    {
+                        arrUplinkPortsOnBalancer[intCurrentBalancer] = 16;
+                    }
+
+
                 // Рисуем шасси IS40.
                 if ((strBypassModel == "IS40" || strBypassModel == "MIX") && intTotalIs40Bypasses == 0)
                 {
@@ -1995,25 +2008,44 @@ namespace VeryFirstProject
                                 else
                                 {
                                     if (listHydraLines.Count == 0) intGlobalCableCounter++;
-                                    if (!boolNoBalancer)
+                                    if (!boolNoBalancer)                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                     {
-                                        if ((intCurrentBypassPort - 1) % 2 == 0) intCurrentPortInChassis++;
-                                        if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)
+                                        if (boolBypassCross)
                                         {
-                                            if (intCurrentBalancerChassis > 0)
+
+                                            if ((intCurrentBypassPort - 1) % 2 == 0)
                                             {
-                                                arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis - 1;
-                                                //Console.WriteLine($"На балансировщике {intCurrentBalancerChassis} последний заполненный порт: {intCurrentPortInChassis - 1}.");
-                                            };
-                                            boolNotEnoughPortsForLag = false;
-                                            intCurrentBalancerChassis++;
-                                            intCurrentPortInChassis = 17;
-                                        };
-                                        if (arrLagIteration[intCurrentLagNumber] == arrLanLagCounter[intCurrentLagNumber])
+                                                if (intCurrentBalancerChassis == intTotalBalancers) intCurrentBalancerChassis = 1;
+                                                else intCurrentBalancerChassis++;
+                                                arrUplinkPortsOnBalancer[intCurrentBalancerChassis]++;
+                                                intCurrentPortInChassis = arrUplinkPortsOnBalancer[intCurrentBalancerChassis];
+                                            } 
+                                            
+                                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                                            Console.WriteLine($"IS40 Chassis {intCurrentBypassDevice}, IS40 Port: {intCurrentBypassPort}");
+                                            Console.WriteLine($"ELB Chassis {intCurrentBalancerChassis}, ELB Port: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
+                                        }
+                                        else
                                         {
-                                            intCurrentLagNumber++;
-                                            arrLagIteration[intCurrentLagNumber] = 0;
-                                        };
+                                            if ((intCurrentBypassPort - 1) % 2 == 0) intCurrentPortInChassis++;
+                                            if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)
+                                            {
+                                                if (intCurrentBalancerChassis > 0)
+                                                {
+                                                    arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis - 1;
+                                                    //Console.WriteLine($"На балансировщике {intCurrentBalancerChassis} последний заполненный порт: {intCurrentPortInChassis - 1}.");
+                                                };
+                                                boolNotEnoughPortsForLag = false;
+                                                intCurrentBalancerChassis++;
+                                                intCurrentPortInChassis = 17;
+                                            };
+                                            if (arrLagIteration[intCurrentLagNumber] == arrLanLagCounter[intCurrentLagNumber])
+                                            {
+                                                intCurrentLagNumber++;
+                                                arrLagIteration[intCurrentLagNumber] = 0;
+                                            };
+                                        }
+
                                     };
                                     
                                     intEshelonBalancerPortShift = 0;
@@ -2181,7 +2213,18 @@ namespace VeryFirstProject
                                     listHydraLines.Add(page1.DrawLine(doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.2, doubNextPortStartPointX + 2.5 + 0.1, doubNextPortStartPointY - 0.2));
                                     if (listHydraLines.Count == 4 || iCurrentOverallMonPort == intTotalOverallLinkNumber * 2)
                                     {
-                                        list_Specification.Add("duplex LC/UPC-LC/UPC, SM"); 
+                                        /*
+                                        if (boolBypassCross)
+                                        {
+                                            if (intCurrentBalancerChassis == intTotalBalancers) intCurrentBalancerChassis = 1;
+                                            else intCurrentBalancerChassis++;
+                                            arrUplinkPortsOnBalancer[intCurrentBalancerChassis]++;
+                                            intCurrentPortInChassis = arrUplinkPortsOnBalancer[intCurrentBalancerChassis];
+                                            //Console.WriteLine($"ELB Chassis {intCurrentBalancerChassis}, ELB Port: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
+                                        }
+                                        */
+                                        
+                                            list_Specification.Add("duplex LC/UPC-LC/UPC, SM"); 
                                         list_Specification.Add("FT-QSFP+/4SFP+CabA-");
                                         if (iCurrentOverallMonPort == intTotalOverallLinkNumber * 2 && listHydraLines.Count < 4) doubShiftY = 0.7;
                                         else doubShiftY = 0;
@@ -2346,7 +2389,7 @@ namespace VeryFirstProject
 
                         };
                     };  //Конец рисования шасси байпасов
-                    arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis;
+                    if (!boolBypassCross) arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis;
                     if (boolEshelon) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
                     //if (boolEshelon && intCurrentBalancerChassis < intTotalBalancers && intTotalBalancers > 1) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
                     //if (boolEshelon && intCurrentBalancerChassis < Convert.ToInt32(strBalancerNumberFromInput)) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
