@@ -311,7 +311,7 @@ namespace VeryFirstProject
                 }
                 else
                 {
-                    //Добавляем провайдера.
+                    //Добавляем оператора.
                     command.CommandText = $"insert into Object (name, objtype_id) values ('{strOperatorName}', 1562);";
                     command.ExecuteNonQuery();
                     // Чтение Location ID. Расчёт Row ID. Обращение к функции.
@@ -1255,8 +1255,8 @@ namespace VeryFirstProject
                         // Рисуем Mon-порты.
                         // Удалить!
                         if (intCurrentPortCounterInBypass == 1) list_Specification.Add("IS100M100G4BP-QL4S4");
-                        list_Specification.Add("FT-QSFP28-CabA-");
-                        list_Specification.Add("FT-QSFP28-CabA-");
+                        list_Specification.Add("NR-QSFP-100G-AOC 100G QSFP28 <=> QSFP28");
+                        list_Specification.Add("NR-QSFP-100G-AOC 100G QSFP28 <=> QSFP28");
                         //Раундробин (формула).
                         intCurrentBalancerChassis++;
                         //WAN-линки - в нечётные порты балансировщика (1, 3, 5, 7,...)
@@ -1291,7 +1291,7 @@ namespace VeryFirstProject
                         arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                         arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                         arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                        arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "FT-QSFP28-CabA-");
+                        arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "NR-QSFP-100G-AOC 100G QSFP28 <=> QSFP28");
                         //Draw Line And Fake Rectangle
                         arrShapesBypass100MonFakeLine[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawLine(doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.2, doubNextPortStartPointX + 5.5, doubNextPortStartPointY - 0.2);
                         arrShapesBypassMonFakeCircles[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawOval(doubNextPortStartPointX + 2.9, doubNextPortStartPointY, doubNextPortStartPointX + 3.3, doubNextPortStartPointY - 0.4);
@@ -1321,7 +1321,7 @@ namespace VeryFirstProject
                         arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                         arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                         arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                        arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "FT-QSFP28-CabA-");
+                        arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "NR-QSFP-100G-AOC 100G QSFP28 <=> QSFP28");
                         //Draw Line And Fake Rectangle
                         arrShapesBypass100MonFakeLine[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawLine(doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 5.5, doubNextPortStartPointY - 0.4);
                         arrShapesBypassMonFakeCircles[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawOval(doubNextPortStartPointX + 3.5, doubNextPortStartPointY - 0.2, doubNextPortStartPointX + 3.9, doubNextPortStartPointY - 0.6);
@@ -1387,6 +1387,7 @@ namespace VeryFirstProject
 
                 // Подсчёт количества занятых байпас-сегментов в IBS1UP. Чтобы завявить меньше MGMT-портов на шасси.
                 intDifference = intTotalOverallLinkNumber % 4;
+                Console.WriteLine($"Остаток от деления: {intDifference}");
                 //Console.WriteLine($"Отрисовка байпасов начата.");
 
                 // Проход по всем десяточным байпасам (IBS1UP).
@@ -1435,7 +1436,8 @@ namespace VeryFirstProject
                         if (intCurrentBypassDevice == intLinkCounter10Old || intCurrentBypassDevice == intLastBypassChassis) boolLastBypassChassis = true;
                         
                         //Если последнее шасси IBS1UP, то количество портов MGMT считаем из разницы между 4 и оставшимися портами
-                        if (boolLastBypassChassis) intMgmtPortOnChassis = 4 - intDifference;
+                        //if (boolLastBypassChassis) intMgmtPortOnChassis = 4 - intDifference;
+                        if (boolLastBypassChassis) intMgmtPortOnChassis = intDifference;
                         else intMgmtPortOnChassis = 4;
 
 
@@ -1637,7 +1639,7 @@ namespace VeryFirstProject
                                 arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                 arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Port_A_Name", Convert.ToString(strCurrentPortName) + strCableInHydra);
                                 arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Device_A_Name", strCurrentDeviceHostname);
-                                arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Cable_Type", "FT-QSFP+/4SFP+CabA-");
+                                arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Cable_Type", "NR-QSFP-4X10G-AOC 40G QSFP");
                                 // MySQL
                                 command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
                                 //command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', {strLinkTypeId}, {strLinkSubTypeId});";
@@ -1669,7 +1671,7 @@ namespace VeryFirstProject
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                                arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Type", "FT-SFP+CabA-");
+                                arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+");
                                 // MySQL.
                                 //command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
                                 command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', {strLinkTypeId}, {strLinkSubTypeId});";
@@ -1704,7 +1706,7 @@ namespace VeryFirstProject
                                 arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                 arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Port_A_Name", Convert.ToString(strCurrentPortName) + strCableInHydra);
                                 arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Device_A_Name", strCurrentDeviceHostname);
-                                arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Cable_Type", "FT-QSFP+/4SFP+CabA-");
+                                arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Cable_Type", "NR-QSFP-4X10G-AOC 40G QSFP");
                                 //////////  MySQL
                                 command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
                                 //command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', {strLinkTypeId}, {strLinkSubTypeId});"; 
@@ -1735,7 +1737,7 @@ namespace VeryFirstProject
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                                arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Type", "FT-SFP+CabA-");
+                                arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+");
                                 // MySQL
                                 //command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
                                 command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', {strLinkTypeId}, {strLinkSubTypeId});";
@@ -1773,7 +1775,7 @@ namespace VeryFirstProject
                                 // Если нарисованы 4 коннектора гидра.
                                 if (listHydraLines.Count == 4)
                                 {
-                                    list_Specification.Add("FT-QSFP+/4SFP+CabA-");  // Удалить!
+                                    list_Specification.Add("NR-QSFP-4X10G-AOC 40G QSFP");  // Удалить!
                                     listHydraLines.Add(page1.DrawLine(doubNextPortStartPointX + 2.5 + 0.1, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 2.5 + 0.1, doubNextPortStartPointY + 0.5));
                                     vsoWindow.DeselectAll();
                                     foreach (Visio.Shape objHydraSingleLine in listHydraLines)
@@ -1804,7 +1806,8 @@ namespace VeryFirstProject
                 };
 
                 // Крестуем IS40
-                bool boolBypassCross = true;
+                bool boolBypassCross = false;
+                //boolBypassCross = true;
 
                 if (boolBypassCross)
                     for (int intCurrentBalancer = 1; intCurrentBalancer <= intTotalBalancers; intCurrentBalancer++)
@@ -2094,7 +2097,7 @@ namespace VeryFirstProject
                                     arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                     arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Port_A_Name", Convert.ToString(strCurrentPortName) + strCableInHydra);
                                     arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Device_A_Name", strCurrentDeviceHostname);
-                                    arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Cable_Type", "FT-QSFP+/4SFP+CabA-");
+                                    arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, intHydraEnd].Add("Cable_Type", "NR-QSFP-4X10G-AOC 40G QSFP");
 
                                     //////////  MySQL
                                     command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
@@ -2124,7 +2127,7 @@ namespace VeryFirstProject
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Type", "FT-SFP+CabA-");
+                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+");
 
                                     //////////  MySQL
                                     command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
@@ -2166,7 +2169,7 @@ namespace VeryFirstProject
                                     arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intHydraEnd].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                     arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intHydraEnd].Add("Port_A_Name", Convert.ToString(strCurrentPortName) + strCableInHydra);
                                     arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intHydraEnd].Add("Device_A_Name", strCurrentDeviceHostname);
-                                    arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intHydraEnd].Add("Cable_Type", "FT-QSFP+/4SFP+CabA-");
+                                    arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intHydraEnd].Add("Cable_Type", "NR-QSFP-4X10G-AOC 40G QSFP");
 
                                     // MySQL
                                     command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
@@ -2195,7 +2198,7 @@ namespace VeryFirstProject
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Type", "FT-SFP+CabA-");
+                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+");
 
                                     // MySQL
                                     command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 9, 36);";
@@ -2225,7 +2228,7 @@ namespace VeryFirstProject
                                         */
                                         
                                             list_Specification.Add("duplex LC/UPC-LC/UPC, SM"); 
-                                        list_Specification.Add("FT-QSFP+/4SFP+CabA-");
+                                        list_Specification.Add("NR-QSFP-4X10G-AOC 40G QSFP");
                                         if (iCurrentOverallMonPort == intTotalOverallLinkNumber * 2 && listHydraLines.Count < 4) doubShiftY = 0.7;
                                         else doubShiftY = 0;
                                         listHydraLines.Add(page1.DrawLine(doubNextPortStartPointX + 2.5 + 0.1, doubNextPortStartPointY - 0.4 - doubShiftY, doubNextPortStartPointX + 2.5 + 0.1, doubNextPortStartPointY + 0.5 - doubShiftY));
@@ -2560,7 +2563,7 @@ namespace VeryFirstProject
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                            arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "FT-QSFP28-CabA-");
+                            arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "NR-QSFP-40G-AOC 40G QSFP <=> QSFP");
 
                             //Draw Line And Fake Rectangle
                             arrShapesBypass100MonFakeLine[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawLine(doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.2, doubNextPortStartPointX + 5.5, doubNextPortStartPointY - 0.2);
@@ -2593,7 +2596,7 @@ namespace VeryFirstProject
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Device_A_Name", strCurrentDeviceHostname);
-                            arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "FT-QSFP28-CabA-");
+                            arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0].Add("Cable_Type", "NR-QSFP-40G-AOC 40G QSFP <=> QSFP");
 
                             //Draw Line And Fake Rectangle
                             arrShapesBypass100MonFakeLine[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawLine(doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 5.5, doubNextPortStartPointY - 0.4);
@@ -3039,7 +3042,7 @@ namespace VeryFirstProject
                                 //КЖ
                                 arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Add("Cable_Number", Convert.ToString(intOverallPeremychkaNumber) + " Пер");
                                 arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Add("Cable_Name", $"{strCurrentDeviceHostname} --- {strCurrentDeviceHostname}");
-                                arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Add("Cable_Type", "FT-QSFP28-CabA-");
+                                arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Add("Cable_Type", "NR-QSFP-100G-AOC 100G QSFP28 <=> QSFP28");
                                 list_CableJournal_Highway_Peremychka.Add(new Dictionary<string, string>());
                                 foreach (string key in arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Keys)
                                 {
@@ -3107,7 +3110,7 @@ namespace VeryFirstProject
                                 arrShapesBalancerFakeDownlinkConnections[intFilterPointerCross, intHydraPointerCross] = page1.DrawRectangle(doubNextPortStartPointX + 1.5 + 0.2 * intCurrentBalancerDownlinkPort, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 1.5 + 0.2 * intCurrentBalancerDownlinkPort, doubNextPortStartPointY - 0.4);
 
                                 //Добавляем в спецификацию
-                                list_Specification.Add("FT-QSFP+/4SFP+CabA-");
+                                list_Specification.Add("NR-QSFP-4X10G-AOC 40G QSFP");
                                 doubNextPortStartPointY -= 0.4;
 
 
@@ -3164,7 +3167,7 @@ namespace VeryFirstProject
                                 arrShapesBalancerFakeDownlinkConnections[intFilterPointerStraight, intHydraPointerStraight] = page1.DrawRectangle(doubNextPortStartPointX + 1.5 + 0.2 * intCurrentBalancerDownlinkPort, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 1.5 + 0.2 * intCurrentBalancerDownlinkPort, doubNextPortStartPointY - 0.4);
 
                                 //Добавляем в спецификацию
-                                list_Specification.Add("FT-QSFP+/4SFP+CabA-");
+                                list_Specification.Add("NR-QSFP-4X10G-AOC 40G QSFP");
 
                                 
                                 if (intHydraPointerStraight == intHydrasOnFilter) intHydraPointerStraight = 0;
@@ -3289,11 +3292,11 @@ namespace VeryFirstProject
 
                         //Порт SP1
                         listDeviceLogPorts.Add(page1.DrawRectangle(doubStartPointNextShapeX + 0.7, doubStartPointNextShapeY + 0.1, doubStartPointNextShapeX + 1.1, doubStartPointNextShapeY + 0.3));
-                        listDeviceLogPorts[listDeviceLogPorts.Count - 1].Text = "SP1";
+                        listDeviceLogPorts[listDeviceLogPorts.Count - 1].Text = "SP1/LOG2";
                         listDeviceLogPorts[listDeviceLogPorts.Count - 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.08";
                         listDeviceLogPorts[listDeviceLogPorts.Count - 1].Rotate90();
                         listDeviceLogPorts[listDeviceLogPorts.Count - 1].Data1 = strCurrentDeviceHostname;
-                        listDeviceLogPorts[listDeviceLogPorts.Count - 1].Data2 = "SP1";
+                        listDeviceLogPorts[listDeviceLogPorts.Count - 1].Data2 = "SP1/LOG2";
                         //listDeviceLogPorts[listDeviceLogPorts.Count - 1].Data3 = strCurrentDeviceHostname;
                         //Log Lines
                         listDeviceLogLines.Add(page1.DrawLine(doubStartPointNextShapeX + 0.9, doubStartPointNextShapeY + 0.4, doubStartPointNextShapeX + 0.9, doubStartPointNextShapeY + 1.5));
@@ -3657,7 +3660,7 @@ namespace VeryFirstProject
                     listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Port_A", "XGE-" + listShapesMesLogDownLinkPorts.Count);
                     listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Device_B", $"{strFilterModel} ({listShapesMesLogDownLinkPorts.Count})");
                     listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Port_B", "SP1");
-                    listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Cable_Type", "FT-SFP+CabA- (10G, SFP+, AOC, 2м)");
+                    listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+ (10G, SFP+, AOC, 2м)");
 
 
                     // MySQL
@@ -3694,7 +3697,7 @@ namespace VeryFirstProject
                 for (int intCurrentServer = 0; intCurrentServer <= intTotalLogServers; intCurrentServer++)
                 {
                     //Добавляем в спецификацию
-                    list_Specification.Add("FT-SFP+CabA-");
+                    list_Specification.Add("NR-SFP-10G-AOC 10G SFP+ <=> SFP+");
 
                     listShapesMesLogUpLinkPorts.Add(page1.DrawRectangle(doubNextPortStartPointX, doubNextPortStartPointY, doubNextPortStartPointX + 0.4, doubNextPortStartPointY + 0.2));
                     listShapesMesLogUpLinkPorts[listShapesMesLogUpLinkPorts.Count - 1].Text = "XGE-" + (30 - intCurrentServer);
@@ -3805,7 +3808,7 @@ namespace VeryFirstProject
                 listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Port_A", "XGE-1 (верхний)");
                 listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Device_B", listShapesMesLogUpLinkPorts[0].Data1);
                 listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Port_B", listShapesMesLogUpLinkPorts[0].Data2);
-                listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Cable_Type", "FT-SFP+CabA- (10G, SFP+, AOC, 2м)");
+                listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+ (10G, SFP+, AOC, 2м)");
 
                 listDeviceMgmtPorts.Add(page1.DrawRectangle(doubServersStartX + 2, doubStartPointNextShapeY + 3.1, doubServersStartX + 2.5, doubStartPointNextShapeY + 3.3));
                 listDeviceMgmtPorts[listDeviceMgmtPorts.Count - 1].Text = "GE-4";
@@ -3905,7 +3908,7 @@ namespace VeryFirstProject
                     listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Port_A", "XGE-1 (верхний)");
                     listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Device_B", listShapesMesLogUpLinkPorts[listShapesSrvPortsToLog.Count - 1].Data1);
                     listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Port_B", listShapesMesLogUpLinkPorts[listShapesSrvPortsToLog.Count - 1].Data2);
-                    listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Cable_Type", "FT-SFP+CabA- (10G, SFP+, AOC, 2м)");
+                    listCableJournal_Log[listCableJournal_Log.Count - 1].Add("Cable_Type", "NR-SFP-10G-AOC 10G SFP+ <=> SFP+ (10G, SFP+, AOC, 2м)");
 
                     listDeviceMgmtPorts.Add(page1.DrawRectangle(doubSfsdDeviceX + 2, doubSfsdDeviceY + 0.1, doubSfsdDeviceX + 2.5, doubSfsdDeviceY + 0.3));
                     listDeviceMgmtPorts[listDeviceMgmtPorts.Count - 1].Text = "GE-4";
@@ -4423,7 +4426,7 @@ namespace VeryFirstProject
                         xlWorksheet31.Cells[intJournalCurrentRow, 3] = dictCableRecord["Device_A_Name"];
                         xlWorksheet31.Cells[intJournalCurrentRow, 5] = dictCableRecord["Device_B_Name"];
                         xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].NumberFormat = "General";
-                        xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].Formula = $"=\"FT-QSFP+/4SFP+CabA-\" & I{intJournalCurrentRow}";
+                        xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].Formula = $"=\"NR-QSFP-4X10G-AOC 40G QSFP\" & I{intJournalCurrentRow}";
                         xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].Calculate();
                         xlWorksheet31.Cells[intJournalCurrentRow, 4] = dictCableRecord["Port_A_Name"];
                         xlWorksheet31.Cells[intJournalCurrentRow, 6] = dictCableRecord["Port_B_Name"];
