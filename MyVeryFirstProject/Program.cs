@@ -403,6 +403,8 @@ namespace VeryFirstProject
                 string strLanLagName;
                 string strPreviousHostname = "";
                 string strPreviousLag = "";
+                string LanWanComment = "";
+                string SideADevice = "";
 
                 // Проход по всем строкам исходного .xlsx, описывающих линки.
                 for (int intCurrentRow = 4; intCurrentRow <= intTotalRows; intCurrentRow++)
@@ -517,13 +519,16 @@ namespace VeryFirstProject
                     listLanPorts[listLanPorts.Count - 1].Add("Overall_Link_Number", intCurrentOverallLinkNumber);
 
                     // Запись LAN-портов в массив для КЖ LAN-Bypass.
+                    LanWanComment = strCurrentLanHostname + "\n" + Convert.ToString(strCurrentLanPortName);
+                    if (strLanOdfLocation == "Без ODF" || strLanOdfLocation == "") { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
                     intCurrentJournalItem++;
                     intGlobalCableCounter++;
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0] = new Dictionary<string, string>();
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Port_ID", Convert.ToString(intLocalPortCounter));
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_A_Name", strLanOdfLocation);
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_A_Port", strLanOdfPort);
-                    arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Comment", strCurrentLanHostname + "\n" + Convert.ToString(strCurrentLanPortName));
+                    arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Comment", LanWanComment);
+                    //arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Comment", strCurrentLanHostname + "\n" + Convert.ToString(strCurrentLanPortName));
 
 
                     // Устройства WAN.
@@ -591,12 +596,15 @@ namespace VeryFirstProject
                     listWanPorts[listWanPorts.Count - 1].Add("Overall_Link_Number", intCurrentOverallLinkNumber);
 
                     // Запись WAN-портов в массив для КЖ WAN-Bypass.
+                    LanWanComment = strCurrentWanHostname + "\n" + Convert.ToString(strCurrentWanPortName);
+                    if (strWanOdfLocation == "Без ODF" || strWanOdfLocation == "") { strWanOdfLocation = strCurrentWanHostname; strWanOdfPort = strCurrentWanPortName; LanWanComment = "Прямое включение"; };
                     intCurrentJournalItem++;
                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1] = new Dictionary<string, string>();
                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Port_ID", Convert.ToString(intLocalPortCounter));
                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_A_Name", strWanOdfLocation);
                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_A_Port", strWanOdfPort);
-                    arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Comment", strCurrentWanHostname + "\n" + Convert.ToString(strCurrentWanPortName));
+                    arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Comment", LanWanComment);
+                    //arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Comment", strCurrentWanHostname + "\n" + Convert.ToString(strCurrentWanPortName));
 
 
                     // Работа с LAG. Ориентируемся на то, что лаги друг под другом будут.
@@ -1188,9 +1196,12 @@ namespace VeryFirstProject
                             // Connect
                             arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 0].AutoConnect(arrShapesLanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                             // Дозаполнение ячейки массива словарей LAN-Bypass
+                            if (arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Side_A_Name"];
+                            else SideADevice = "ODF";
                             arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Name", strCurrentDeviceHostname);
                             arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Port", strCurrentPortName);
-                            arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            //arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n100GBASE-LR4");
                             arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Number", intCurrentOverallLinkNumber + " L");
                             list_CableJournal_LAN_Bypass.Add(new Dictionary<string, string>());
                             // Перенос словарей из нумерованного списка в ненумерованный - чтобы отработал foreach
@@ -1234,9 +1245,12 @@ namespace VeryFirstProject
                             //Connect
                             arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 1].AutoConnect(arrShapesWanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                             //Дозаполнение ячейки массива словарей WAN-Bypass
+                            if (arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Side_A_Name"];
+                            else SideADevice = "ODF";
                             arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Name", strCurrentDeviceHostname);
                             arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Port", strCurrentPortName);
-                            arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            //arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n100GBASE-LR4");
                             arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Number", intCurrentOverallLinkNumber + " W");
                             list_CableJournal_WAN_Bypass.Add(new Dictionary<string, string>());
                             foreach (string key in arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Keys)
@@ -1512,10 +1526,13 @@ namespace VeryFirstProject
                                 //Connect
                                 arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 0].AutoConnect(arrShapesLanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                                 //Дозаполнение ячейки массива словарей LAN-Bypass
+                                if (arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Side_A_Name"];
+                                else SideADevice = "ODF";
                                 arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Name", strCurrentDeviceHostname);
                                 arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Port", strCurrentPortName);
                                 arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Number", intCurrentOverallLinkNumber + " L");
-                                arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                                arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n10GBASE-LR");
+                                //arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
                                 list_CableJournal_LAN_Bypass.Add(new Dictionary<string, string>());
                                 foreach (string key in arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Keys)
                                 {
@@ -1557,10 +1574,13 @@ namespace VeryFirstProject
                                 // Connect
                                 arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 1].AutoConnect(arrShapesWanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                                 // Дозаполнение ячейки массива словарей WAN-Bypass
+                                if (arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Side_A_Name"];
+                                else SideADevice = "ODF";
                                 arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Name", strCurrentDeviceHostname);
                                 arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Port", strCurrentPortName);
                                 arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Number", intCurrentOverallLinkNumber + " W");
-                                arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                                //arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                                arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n10GBASE-LR");
                                 list_CableJournal_WAN_Bypass.Add(new Dictionary<string, string>());
                                 foreach (string key in arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Keys)
                                 {
@@ -1901,10 +1921,13 @@ namespace VeryFirstProject
                                     //Соединительная линия.
                                     arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 0].AutoConnect(arrShapesLanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                                     //Дозаполнение ячейки массива словарей LAN-Bypass
+                                    if (arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Side_A_Name"];
+                                    else SideADevice = "ODF";
                                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Name", strCurrentDeviceHostname);
                                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Port", strCurrentPortName);
                                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Number", intCurrentOverallLinkNumber + " L");
-                                    arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                                    arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n10GBASE-LR");
+                                    //arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
                                     list_CableJournal_LAN_Bypass.Add(new Dictionary<string, string>());
                                     foreach (string key in arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Keys)
                                     {
@@ -1945,10 +1968,13 @@ namespace VeryFirstProject
                                     // Соединительная линия.
                                     arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 1].AutoConnect(arrShapesWanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                                     // Дозаполнение ячейки массива словарей WAN-Bypass
+                                    if (arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Side_A_Name"];
+                                    else SideADevice = "ODF";
                                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Name", strCurrentDeviceHostname);
                                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Port", strCurrentPortName);
                                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Number", intCurrentOverallLinkNumber + " W");
-                                    arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                                    //arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                                    arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n10GBASE-LR");
                                     list_CableJournal_WAN_Bypass.Add(new Dictionary<string, string>());
                                     foreach (string key in arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Keys)
                                     {
@@ -2474,10 +2500,13 @@ namespace VeryFirstProject
                             //Connect
                             arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 0].AutoConnect(arrShapesLanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                             //Дозаполнение ячейки массива словарей LAN-Bypass
+                            if (arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0]["Side_A_Name"];
+                            else SideADevice = "ODF";
                             arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Name", strCurrentDeviceHostname);
                             arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Side_B_Port", strCurrentPortName);
                             arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Number", intCurrentOverallLinkNumber + " L");
-                            arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n40GBASE-LR4");
+                            //arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
                             list_CableJournal_LAN_Bypass.Add(new Dictionary<string, string>());
 
                             // MySQL
@@ -2521,10 +2550,13 @@ namespace VeryFirstProject
                             //Connect
                             arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 1].AutoConnect(arrShapesWanFakeConnections[intCurrentOverallLinkNumber], Visio.VisAutoConnectDir.visAutoConnectDirNone);
                             //Дозаполнение ячейки массива словарей WAN-Bypass
+                            if (arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Comment"] == "Прямое включение") SideADevice = arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1]["Side_A_Name"];
+                            else SideADevice = "ODF";
                             arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Name", strCurrentDeviceHostname);
                             arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Side_B_Port", strCurrentPortName);
                             arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Number", intCurrentOverallLinkNumber + " W");
-                            arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            //arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"ODF --- {strBypassModel} ({intCurrentBypassDevice})");
+                            arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Cable_Name", $"{SideADevice} --- {strBypassModel} ({intCurrentBypassDevice})\n40GBASE-LR4");
                             list_CableJournal_WAN_Bypass.Add(new Dictionary<string, string>());
 
                             // MySQL
