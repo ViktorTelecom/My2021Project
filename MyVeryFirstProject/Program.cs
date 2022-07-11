@@ -285,19 +285,19 @@ namespace VeryFirstProject
                 command.ExecuteNonQuery();
 
                 //Проверяем в базе наличие название провайдера в Location
-                int intOccupiedRaws = 0;
+                int intOccupiedRows = 0;
                 command.CommandText = $"SELECT COUNT(*) from Object where name = '{strOperatorName}';";
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        intOccupiedRaws = Convert.ToInt32(reader.GetValue(0));
+                        intOccupiedRows = Convert.ToInt32(reader.GetValue(0));
                     };
                 };
                 //Console.WriteLine($"Оператор {strOperatorName} присутствует {intOccupiedRaws} раз.");
 
                 int intLocationId = 0;
-                if (intOccupiedRaws > 0)
+                if (intOccupiedRows > 0)
                 {
                     command.CommandText = $"SELECT id from Object where objtype_id = '1562' AND name = '{strOperatorName}';";
                     using (MySqlDataReader reader = command.ExecuteReader())
@@ -520,7 +520,7 @@ namespace VeryFirstProject
 
                     // Запись LAN-портов в массив для КЖ LAN-Bypass.
                     LanWanComment = strCurrentLanHostname + "\n" + Convert.ToString(strCurrentLanPortName);
-                    if (strLanOdfLocation == "Без ODF" || strLanOdfLocation == "") { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
+                    if (strLanOdfLocation == "Без ODF" || strLanOdfLocation == "без ODF" || strLanOdfLocation == "") { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
                     intCurrentJournalItem++;
                     intGlobalCableCounter++;
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0] = new Dictionary<string, string>();
@@ -2057,7 +2057,7 @@ namespace VeryFirstProject
                                         else
                                         {
                                             if ((intCurrentBypassPort - 1) % 2 == 0) intCurrentPortInChassis++;
-                                            if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)
+                                            if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!
                                             {
                                                 if (intCurrentBalancerChassis > 0)
                                                 {
@@ -4474,7 +4474,7 @@ namespace VeryFirstProject
                 foreach (Dictionary<string, string> dictCableRecord in listCableJournal_Management)
                 {
                     intJournalCurrentRow++;
-                    xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"]; ;
+                    xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"]; 
                     xlWorksheet31.Cells[intJournalCurrentRow, 2] = dictCableRecord["Cable_Name"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 3] = dictCableRecord["Device_A"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 4] = dictCableRecord["Port_A"];
@@ -4492,7 +4492,7 @@ namespace VeryFirstProject
                 foreach (Dictionary<string, string> dictCableRecord in listCableJournal_Log)
                 {
                     intJournalCurrentRow++;
-                    xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"]; ;
+                    xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 2] = dictCableRecord["Cable_Name"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 3] = dictCableRecord["Device_A"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 4] = dictCableRecord["Port_A"];
