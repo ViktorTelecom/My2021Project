@@ -520,7 +520,7 @@ namespace VeryFirstProject
 
                     // Запись LAN-портов в массив для КЖ LAN-Bypass.
                     LanWanComment = strCurrentLanHostname + "\n" + Convert.ToString(strCurrentLanPortName);
-                    if (strLanOdfLocation == "Без ODF" || strLanOdfLocation == "без ODF" || strLanOdfLocation == "") { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
+                    if (strLanOdfLocation == "без ODF" || strLanOdfLocation == "Без ODF" || strLanOdfLocation == "") { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
                     intCurrentJournalItem++;
                     intGlobalCableCounter++;
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0] = new Dictionary<string, string>();
@@ -597,7 +597,7 @@ namespace VeryFirstProject
 
                     // Запись WAN-портов в массив для КЖ WAN-Bypass.
                     LanWanComment = strCurrentWanHostname + "\n" + Convert.ToString(strCurrentWanPortName);
-                    if (strWanOdfLocation == "Без ODF" || strWanOdfLocation == "") { strWanOdfLocation = strCurrentWanHostname; strWanOdfPort = strCurrentWanPortName; LanWanComment = "Прямое включение"; };
+                    if (strWanOdfLocation == "без ODF" || strWanOdfLocation == "Без ODF" || strWanOdfLocation == "") { strWanOdfLocation = strCurrentWanHostname; strWanOdfPort = strCurrentWanPortName; LanWanComment = "Прямое включение"; };
                     intCurrentJournalItem++;
                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1] = new Dictionary<string, string>();
                     arrCableJournal_WAN_Bypass[intCurrentOverallLinkNumber, 1].Add("Port_ID", Convert.ToString(intLocalPortCounter));
@@ -1014,8 +1014,9 @@ namespace VeryFirstProject
 
                 ////////////////////////////////////////////////////////////////////////////////// Рисуем Байпасы ////////////////////////////////////////////////////////////////////////////
 
+                // Подсчёт количества линков на один балансер при прямом включении десяток
+                int LastPortOnBalancer = CalculateDevicesQuantity(intLinkCounter10, Convert.ToInt32(strBalancerNumberFromInput));
 
-                
                 // Переменная для подсчёта количества портов MGMT на IBS1UP.
                 int intDifference;
 
@@ -2057,7 +2058,8 @@ namespace VeryFirstProject
                                         else
                                         {
                                             if ((intCurrentBypassPort - 1) % 2 == 0) intCurrentPortInChassis++;
-                                            if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!
+                                            //if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
+                                            if (intCurrentPortInChassis == (LastPortOnBalancer + 1) || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
                                             {
                                                 if (intCurrentBalancerChassis > 0)
                                                 {
@@ -2419,7 +2421,7 @@ namespace VeryFirstProject
                         };
                     };  //Конец рисования шасси байпасов
                     if (!boolBypassCross) arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis;
-                    if (boolEshelon) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
+                    if (boolEshelon) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;                                                                               //Правим тут!
                     //if (boolEshelon && intCurrentBalancerChassis < intTotalBalancers && intTotalBalancers > 1) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
                     //if (boolEshelon && intCurrentBalancerChassis < Convert.ToInt32(strBalancerNumberFromInput)) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
 
@@ -2861,7 +2863,8 @@ namespace VeryFirstProject
                                 if (intCurrentBalancerUplinkPort % 2 == 0 && !boolEshelon) doubNextPortStartPointY -= 0.4;
                                 else doubNextPortStartPointY -= 0.2;
 
-                                if (boolEshelon && intCurrentBalancerUplinkPort - 16 == intCrossPortsOnEachBalancer / 2) doubNextPortStartPointY -= 0.6;
+                                //if (boolEshelon && intCurrentBalancerUplinkPort - 16 == intCrossPortsOnEachBalancer / 2) doubNextPortStartPointY -= 0.6;
+                                if (boolEshelon && intCurrentBalancerUplinkPort - 16 == intCrossPortsOnEachBalancer / 2) doubNextPortStartPointY -= 4;              //подъём
 
                             };
                             intStartBalancerPort = 17;
@@ -2945,7 +2948,7 @@ namespace VeryFirstProject
                                     if (boolEshelon)
                                     {
                                         strCurrentPortName = "p" + Convert.ToString(intBalancerRecalculatedPort + 8);
-                                        doubShiftY = doubNextPortStartPointY - 5;
+                                        doubShiftY = doubNextPortStartPointY - 5;      // здеся
                                         //  LAN-порты ---------------------------   Не отлажено!
                                         arrShapesBalancer100UplinkPorts[intCurrentBalancerFrame, intBalancerRecalculatedPort + 8] = page1.DrawRectangle(doubNextPortStartPointX - 0.5, doubShiftY - 0.5, doubNextPortStartPointX, doubShiftY - 0.3);
                                         arrShapesBalancer100UplinkPorts[intCurrentBalancerFrame, intBalancerRecalculatedPort + 8].Data3 = Convert.ToString(intCurrentBalancerFrame);
@@ -3024,7 +3027,8 @@ namespace VeryFirstProject
                         {
                             //Console.WriteLine($"Перемычек на хайвэй {intCurrentBalancerFrame}: {intCurrentHighwayPeremyckaNumber}");
                             doubNextPortStartPointY -= 0.2;
-                            doubShiftY = doubNextPortStartPointY;
+                            //doubShiftY = doubNextPortStartPointY;
+                            doubShiftY = doubNextPortStartPointY + 4;               //подъём
                             intCurrentHighwayCurrentPeremychkaPort = 33;
                             for (int inCurrentPeremychka = 1; inCurrentPeremychka <= intCurrentHighwayPeremyckaNumber; inCurrentPeremychka++)
                             {
@@ -3639,7 +3643,7 @@ namespace VeryFirstProject
 
                 //////////  Draw MES Log Switch   //////////
                 Visio.Shape shapeMesLogDevice = page1.DrawRectangle(doubStartPointNextShapeX + 4, doubStartPointNextShapeY + 3.6, doubStartPointNextShapeX + 5 + listDeviceLogPorts.Count * 0.4, doubStartPointNextShapeY + 4.6 + intTotalLogServers * 0.1);
-                strCurrentDeviceHostname = "MES5332A (log)";
+                strCurrentDeviceHostname = "MES5332A (1)";
                 strNameForRackTables = $"{strFullSiteIndex}-LOGSW";
                 shapeMesLogDevice.Text = strCurrentDeviceHostname;
                 shapeMesLogDevice.get_Cells("FillForegnd").FormulaU = "=RGB(176,196,222)";
