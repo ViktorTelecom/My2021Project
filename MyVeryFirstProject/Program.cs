@@ -2058,8 +2058,8 @@ namespace VeryFirstProject
                                         else
                                         {
                                             if ((intCurrentBypassPort - 1) % 2 == 0) intCurrentPortInChassis++;
-                                            //if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
-                                            if (intCurrentPortInChassis == (LastPortOnBalancer + 1) || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
+                                            if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
+                                            //if (intCurrentPortInChassis == (LastPortOnBalancer + 1) || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
                                             {
                                                 if (intCurrentBalancerChassis > 0)
                                                 {
