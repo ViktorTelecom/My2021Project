@@ -25,7 +25,7 @@ namespace VeryFirstProject
             else return intLinkCounter / intDivider + 1;
         }
 
-        static int LastUsedId (MySqlCommand command, string strTableName)
+        static int LastUsedId(MySqlCommand command, string strTableName)
         {
             object objLastUsedId = null;
             command.CommandText = $"select id from {strTableName} ORDER BY id DESC LIMIT 1;";
@@ -41,13 +41,13 @@ namespace VeryFirstProject
         }
 
 
-        static int RackObjectId (MySqlCommand command, int intRowId, string strObjectIndex, string strRackName)
+        static int RackObjectId(MySqlCommand command, int intRowId, string strObjectIndex, string strRackName)
         {
             command.CommandText = $"insert into Object (name, label, objtype_id) values ('{strObjectIndex} {strRackName}', {strObjectIndex}, 1560);";
             command.ExecuteNonQuery();
-            int intRackId = LastUsedId (command, "Object");
+            int intRackId = LastUsedId(command, "Object");
             command.CommandText = $"insert into EntityLink (parent_entity_type, parent_entity_id, child_entity_type, child_entity_id) values ('row', {intRowId}, 'rack', {intRackId});";
-            command.ExecuteNonQuery(); 
+            command.ExecuteNonQuery();
             command.CommandText = $"insert into AttributeValue (object_id, object_tid, attr_id, uint_value) values ({intRackId}, 1560, 27, 42);";  //42 вместо 96
             command.ExecuteNonQuery();
             return intRackId;
@@ -177,7 +177,7 @@ namespace VeryFirstProject
 
                 //Проход по строкам. При обнаружении совпадения номера площадки считываем в переменную расширенный индекс площадки.
                 Console.WriteLine($"Строк в IP-плане: {xlWorksheet3.UsedRange.Rows.Count}");
-                string strFullSiteIndex = "";
+                string strFullSiteIndex = null;
                 string strOperatorName = "";
                 string strObjectAddress = "";
                 if (strObjectIndex[0] == '0') strObjectIndex = strObjectIndex.Substring(1);
@@ -194,13 +194,14 @@ namespace VeryFirstProject
                         break;
                     }
                 };
+                if (strFullSiteIndex == null) throw new Exception("Площадка отсутствует в RackTable!");
 
                 // Закрываем эксель с IP-планом
                 xlWorkbook3.Close();
                 xlApp3.Quit();
                 System.Runtime.InteropServices.Marshal.FinalReleaseComObject(xlWorkbook3);
                 System.Runtime.InteropServices.Marshal.FinalReleaseComObject(xlApp3);
-                
+
 
                 // Создаём списки словарей LAN-WAN
                 List<Dictionary<string, object>> listLanDevices = new List<Dictionary<string, object>>();           //LAN Devices
@@ -228,7 +229,7 @@ namespace VeryFirstProject
                 Dictionary<string, string>[,,] arr_CableJournal_Bypass_Balancer = new Dictionary<string, string>[100, 200, 10];          //Bypass-Balancer
                 Dictionary<string, string>[,,] arrCableJournal_Balancer_Filter = new Dictionary<string, string>[100, 200, 20];           //Balancer-Filter
                 Dictionary<string, string>[] arrCableJournal_Bypass_Filter = new Dictionary<string, string>[200];                        //Bypass-Filter
-                Dictionary<string, string>[,] arrCableJournal_Highway_Peremychka = new Dictionary<string, string>[100,100];              //Balancer Peremychka
+                Dictionary<string, string>[,] arrCableJournal_Highway_Peremychka = new Dictionary<string, string>[100, 100];              //Balancer Peremychka
 
                 // Создаём список для спецификации (Удалить!)
                 List<string> list_Specification = new List<string>();
@@ -329,7 +330,7 @@ namespace VeryFirstProject
                 command.ExecuteNonQuery();
 
                 // Добавление в созданный выше ряд нескольких стоек.
-                int intBypassRackId = RackObjectId(command, intRowId, strObjectIndex,"Байпасы");
+                int intBypassRackId = RackObjectId(command, intRowId, strObjectIndex, "Байпасы");
                 int intBalancerRackId = RackObjectId(command, intRowId, strObjectIndex, "Балансеры");
                 int intFilterRackId = RackObjectId(command, intRowId, strObjectIndex, "Фильтры");
                 int intNetSrvRackId = RackObjectId(command, intRowId, strObjectIndex, "Менеджмент");
@@ -637,8 +638,8 @@ namespace VeryFirstProject
 
                 // Вывод на консоль числа линков в каждом из лагов.
                 for (int intLagCounter = 1; intLagCounter <= intCurrentLagNumber; intLagCounter++)
-                { 
-                    Console.WriteLine($"LAG #{intLagCounter}, линков {arrLanLagCounter[intLagCounter]}."); 
+                {
+                    Console.WriteLine($"LAG #{intLagCounter}, линков {arrLanLagCounter[intLagCounter]}.");
                 };
 
                 // Вывод на консоль числа линков каждого типа.
@@ -663,10 +664,11 @@ namespace VeryFirstProject
 
                 // Определение количества байпасов каждого типа.
                 // Делим количество линков нужного типа на делитель, соответствующий количеству линков на шасси.
-                int intBypassPortDivider;                                                                    
+                int intBypassPortDivider;
                 if (boolEolBypass) intBypassPortDivider = 4;
                 else intBypassPortDivider = 6;
                 int intTotalIs100Bypasses = CalculateDevicesQuantity(intLinkCounter100, 2);
+                int intTotalSignaltek100Bypasses = CalculateDevicesQuantity(intLinkCounter100, 4);
                 int intTotalIs40Bypasses = CalculateDevicesQuantity(intLinkCounter40, 3);
                 int intTotalIs10Bypasses = CalculateDevicesQuantity(intLinkCounter10 + intLinkCounter1Fiber, intBypassPortDivider);
                 int intTotalIs1CopperBypasses = CalculateDevicesQuantity(intLinkCounter1Copper, 4);
@@ -692,7 +694,7 @@ namespace VeryFirstProject
                 bool boolNoBalancer = false;
                 if (intLinkCounter10 > 0 & intLinkCounter10 <= 8) boolNoBalancer = true;
                 if (intLinkCounter1Fiber > 0 & intLinkCounter10 == 0) boolNoBalancer = true;
-                if (intTotalBalancers > 0) boolNoBalancer = false;                                  
+                if (intTotalBalancers > 0) boolNoBalancer = false;
                 if (boolNoBalancer) Console.WriteLine("Прямая коммутация байпасов к фильтру. Без балансировщиков.");
 
                 // Определение количества балансировщиков.          Так как количество балансеров выставляется в шаблоне вручную, можно эти расчёты не использовать. (!!!)
@@ -753,7 +755,7 @@ namespace VeryFirstProject
 
                 // Опускание текущей координаты Y: байпасы должны быть чуть ниже, чем устройства WAN.
                 doubStartPointNextShapeY -= 2.1;
-                                               
+
                 // Создание файла визио.
                 Visio.Application app = new Visio.Application();
                 Visio.Document doc = app.Documents.Add("");
@@ -836,8 +838,8 @@ namespace VeryFirstProject
                                     strLinkSubTypeId = "1670";              // Переписать логику. Сделать отдельные switch case для субтайпов
                                     break;
                                 case "40G":
-                                    strLinkTypeId = "10";                   
-                                    strLinkSubTypeId = "1664"; 
+                                    strLinkTypeId = "10";
+                                    strLinkSubTypeId = "1664";
                                     break;
                                 case "10G":                                 /////////////////////////       Type = 1670 - только для 100GBASE-LR4! Для SR надо дописать алгоритм.
                                     strLinkTypeId = "9";
@@ -1015,7 +1017,8 @@ namespace VeryFirstProject
                 ////////////////////////////////////////////////////////////////////////////////// Рисуем Байпасы ////////////////////////////////////////////////////////////////////////////
 
                 // Подсчёт количества линков на один балансер при прямом включении десяток
-                int LastPortOnBalancer = CalculateDevicesQuantity(intLinkCounter10, Convert.ToInt32(strBalancerNumberFromInput));
+                //int LastPortOnBalancer = CalculateDevicesQuantity(intLinkCounter10, Convert.ToInt32(strBalancerNumberFromInput));
+                //int LastPortOnBalancer = 33;
 
                 // Переменная для подсчёта количества портов MGMT на IBS1UP.
                 int intDifference;
@@ -1028,12 +1031,26 @@ namespace VeryFirstProject
                 // Создаём список фигур шасси IS100.
                 List<Visio.Shape> listShapesBypass100Devices = new List<Visio.Shape>();
 
+
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~   Signaltek   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                // Создаём список заголовков фигур шасси Signaltek.
+                //List<Visio.Shape> listShapesSignaltekHeaders = new List<Visio.Shape>();
+                Visio.Shape[] listShapesSignaltekHeaders = new Visio.Shape[50];
+
+                // Создаём массив модулей шасси Сигналтек.
+                Visio.Shape[,] arrShapesSignaltekModules = new Visio.Shape[50, 4];
+
+                // Создаём массив модулей портов Сигналтек.
+                Visio.Shape[,,] arrShapesSignaltekNetPorts = new Visio.Shape[50, 4, 2];
+                Visio.Shape[,,] arrShapesSignaltekMonPorts = new Visio.Shape[50, 4, 2];
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
                 // Создаём массив фигур портов IS100.
                 Visio.Shape[,] arrShapesBypass100MonPorts = new Visio.Shape[10, 200];
                 Visio.Shape[,] arrShapesBypass100NetPorts = new Visio.Shape[200, 10];
 
                 // Создаём массив фигур портов IS40/IBS1UP (1G/10G): Net, Mon, подпись ODF.
-                Visio.Shape[,] arrShapesBypass10_NetPorts = new Visio.Shape[200, 10]; 
+                Visio.Shape[,] arrShapesBypass10_NetPorts = new Visio.Shape[200, 10];
                 Visio.Shape[,,] arrShapesBypass10_MonPorts = new Visio.Shape[200, 200, 10];
                 Visio.Shape[,] arrShapesBypass10_Odf = new Visio.Shape[200, 10];
 
@@ -1449,7 +1466,7 @@ namespace VeryFirstProject
 
                         //В миксовой схеме: если текущее шасси соответствует последнему шасси IBS1UP, ставим соответствующий флаг.
                         if (intCurrentBypassDevice == intLinkCounter10Old || intCurrentBypassDevice == intLastBypassChassis) boolLastBypassChassis = true;
-                        
+
                         //Если последнее шасси IBS1UP, то количество портов MGMT считаем из разницы между 4 и оставшимися портами
                         //if (boolLastBypassChassis) intMgmtPortOnChassis = 4 - intDifference;
                         if (boolLastBypassChassis) intMgmtPortOnChassis = intDifference;
@@ -1499,7 +1516,7 @@ namespace VeryFirstProject
                             //Net-порты
                             intCurrentOverallLinkNumber++;
                             intCurrentBypassPort++;
-                            
+
 
                             //NetX/0
                             strCurrentPortName = "Net " + intCurrentPortCounterInBypass + "/0";
@@ -1568,7 +1585,7 @@ namespace VeryFirstProject
                                 // Рисование линий и кружков.
                                 arrShapesBypassNetFakeLine[intCurrentOverallLinkNumber, 1] = page1.DrawLine(doubNextPortStartPointX - 5.5, doubNextPortStartPointY - 0.2, doubNextPortStartPointX - 0.5, doubNextPortStartPointY - 0.2);
                                 arrShapesBypassNetFakeCircles[intCurrentOverallLinkNumber, 1] = page1.DrawOval(doubNextPortStartPointX - 1.6, doubNextPortStartPointY - 0.4, doubNextPortStartPointX - 1.2, doubNextPortStartPointY);
-                                arrShapesBypassNetFakeCircles[intCurrentOverallLinkNumber, 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.16";                    
+                                arrShapesBypassNetFakeCircles[intCurrentOverallLinkNumber, 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.16";
                                 arrShapesBypassNetFakeCircles[intCurrentOverallLinkNumber, 1].Text = intCurrentOverallLinkNumber + " W";
                                 arrShapesWanFakeCircles[intCurrentOverallLinkNumber].Text = intCurrentOverallLinkNumber + " W";
                                 arrShapesBypassNetFakeConnection[intCurrentOverallLinkNumber, 1] = page1.DrawRectangle(doubNextPortStartPointX - 5.5, doubNextPortStartPointY - 0.2, doubNextPortStartPointX - 5.5, doubNextPortStartPointY - 0.2);
@@ -1788,7 +1805,7 @@ namespace VeryFirstProject
                             // Если стык с балансером и мы не вышли за пределы линков.
                             if (!boolNoBalancer && (iCurrentOverallMonPort <= intTotalOverallLinkNumber * 2)) boolFinishedFillingSingleBalancer = true;
 
-                                //boolFinishedFillingSingleBalancer
+                            //boolFinishedFillingSingleBalancer
                             if (!boolNoBalancer && (iCurrentOverallMonPort <= intTotalOverallLinkNumber * 2))
                             {
                                 listHydraLines.Add(page1.DrawLine(doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 2.5 + 0.1, doubNextPortStartPointY - 0.4));
@@ -1878,7 +1895,7 @@ namespace VeryFirstProject
                         doubNextPortStartPointX = doubStartPointNextShapeX;
                         doubNextPortStartPointY = doubStartPointNextShapeY;
                         doubStartPointNextShapeY -= 8;
-                        
+
                         /////////////// Добавляем шасси в БД
                         intCurrentRackSlot++;
                         intDeviceId = FillRackSlot(command, strObjectIndex, intBypassRackId, intCurrentRackSlot, 50001, strNameForRackTables);
@@ -2049,8 +2066,8 @@ namespace VeryFirstProject
                                                 else intCurrentBalancerChassis++;
                                                 arrUplinkPortsOnBalancer[intCurrentBalancerChassis]++;
                                                 intCurrentPortInChassis = arrUplinkPortsOnBalancer[intCurrentBalancerChassis];
-                                            } 
-                                            
+                                            }
+
                                             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                                             Console.WriteLine($"IS40 Chassis {intCurrentBypassDevice}, IS40 Port: {intCurrentBypassPort}");
                                             Console.WriteLine($"ELB Chassis {intCurrentBalancerChassis}, ELB Port: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
@@ -2059,7 +2076,7 @@ namespace VeryFirstProject
                                         {
                                             if ((intCurrentBypassPort - 1) % 2 == 0) intCurrentPortInChassis++;
                                             if (intCurrentPortInChassis == 33 || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
-                                            //if (intCurrentPortInChassis == (LastPortOnBalancer + 1) || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)            // Правим тут!  LastPortOnBalancer
+                                            //if (intCurrentPortInChassis == (LastPortOnBalancer + 1) || intCurrentBalancerChassis == 0 || boolNotEnoughPortsForLag)           
                                             {
                                                 if (intCurrentBalancerChassis > 0)
                                                 {
@@ -2078,9 +2095,9 @@ namespace VeryFirstProject
                                         }
 
                                     };
-                                    
+
                                     intEshelonBalancerPortShift = 0;
-                                }; 
+                                };
 
                                 // Mon-порты (байпас - фильтр)
                                 if (intFilterPortNoBalancer == intPortsNumberOnSingleFilter / 2)
@@ -2098,8 +2115,8 @@ namespace VeryFirstProject
                                 {
                                     if (boolEshelon)
                                     {
-                                            strCableInHydra = " (AOC c" + (listEshelonWanHydraLines.Count + 1) + ")";
-                                            intHydraEnd = listEshelonWanHydraLines.Count + 1;
+                                        strCableInHydra = " (AOC c" + (listEshelonWanHydraLines.Count + 1) + ")";
+                                        intHydraEnd = listEshelonWanHydraLines.Count + 1;
                                     }
                                     else
                                     {
@@ -2166,7 +2183,7 @@ namespace VeryFirstProject
                                 iCurrentOverallMonPort++;
                                 strCurrentPortName = "Mon " + intCurrentPortCounterInBypass + "/" + intCurrentSubslotCounterInBypass + "/0";
 
-                                if (!boolNoBalancer) 
+                                if (!boolNoBalancer)
                                 {
                                     if (boolEshelon)
                                     {
@@ -2254,8 +2271,8 @@ namespace VeryFirstProject
                                             //Console.WriteLine($"ELB Chassis {intCurrentBalancerChassis}, ELB Port: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
                                         }
                                         */
-                                        
-                                            list_Specification.Add("duplex LC/UPC-LC/UPC, SM"); 
+
+                                        list_Specification.Add("duplex LC/UPC-LC/UPC, SM");
                                         list_Specification.Add("NR-QSFP-4X10G-AOC 40G QSFP");
                                         if (iCurrentOverallMonPort == intTotalOverallLinkNumber * 2 && listHydraLines.Count < 4) doubShiftY = 0.7;
                                         else doubShiftY = 0;
@@ -2322,7 +2339,7 @@ namespace VeryFirstProject
                                         arrBypassIs40HydraConnectors[intCurrentBalancerChassis, intCurrentPortInChassis].Data3 = Convert.ToString(intCurrentBypassDevice);
                                         intBypassIs40CurrentHydra++;
                                         strHydraName = Convert.ToString(intGlobalCableCounter * 2 - 1) + " ББ";
-                                    
+
                                         // Draw Line And Fake Rectangle
                                         arrShapesBypass100MonFakeLine[intCurrentBalancerChassis, intCurrentPortInChassis] = page1.DrawLine(doubNextPortStartPointX + 2.7, doubNextPortStartPointY + (doubLongLanHydraStartCoordinateY - doubNextPortStartPointY) / 2, doubNextPortStartPointX + 5.6, doubNextPortStartPointY + (doubLongLanHydraStartCoordinateY - doubNextPortStartPointY) / 2);
                                         arrShapesBypass100MonFakeLine[intCurrentBalancerChassis, intCurrentPortInChassis].CellsU["LineColor"].FormulaForceU = "THEMEGUARD(RGB(0,0,255))";
@@ -2337,7 +2354,7 @@ namespace VeryFirstProject
                                         vsoWindow.DeselectAll();
                                         foreach (Visio.Shape objHydraSingleLine in listEshelonLanHydraLines)
                                         {
-                                            objHydraSingleLine.CellsU["LineColor"].FormulaForceU = "THEMEGUARD(RGB(255,102,0))"; 
+                                            objHydraSingleLine.CellsU["LineColor"].FormulaForceU = "THEMEGUARD(RGB(255,102,0))";
                                             vsoWindow.Select(objHydraSingleLine, 2);
                                         };
                                         vsoSelection = vsoWindow.Selection;
@@ -2392,7 +2409,7 @@ namespace VeryFirstProject
                                         vsoWindow.Select(arrShapesBypassNetFakeConnection[intCurrentLinkOnBypass, 1], 2);
                                         vsoWindow.Select(arrShapesBypass10_Odf[intCurrentLinkOnBypass, 1], 2);
                                     };
-                                    
+
                                     vsoWindow.Select(arrShapesBypass100MonPorts[int100mDevice1, int100mPort1], 2);
                                     vsoWindow.Select(arrShapesBypass100MonPorts[int100mDevice1, int100mPort1 + 1], 2);
                                     vsoWindow.Select(arrShapesBypass100MonFakeLine[int100mDevice1, int100mPort1], 2);
@@ -2587,7 +2604,7 @@ namespace VeryFirstProject
                         arrShapesBypass100MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis].Text = strCurrentPortName;
                         arrShapesBypass100MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.08";
                         if (intCurrentOverallLinkNumber <= intTotalOverallLinkNumber)
-                        { 
+                        {
                             //КЖ линков WAN
                             intGlobalCableCounter++;
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0] = new Dictionary<string, string>();
@@ -2620,7 +2637,7 @@ namespace VeryFirstProject
                         arrShapesBypass100MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis].Text = strCurrentPortName;
                         arrShapesBypass100MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.08";
                         if (intCurrentOverallLinkNumber <= intTotalOverallLinkNumber)
-                        {    
+                        {
                             //КЖ линков LAN
                             intGlobalCableCounter++;
                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerChassis, intCurrentPortInChassis, 0] = new Dictionary<string, string>();
@@ -2644,7 +2661,7 @@ namespace VeryFirstProject
                             command.ExecuteNonQuery();
                             arrShapesBypass100MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis].Data1 = Convert.ToString(LastUsedId(command, "Port"));
                         };
-                        
+
 
                         //После отрисовки пары WAN-LAN сдвиг указателя на 2 порта.
                         arrCurrentUplinkPortInBalancer[intCurrentBalancerChassis] += 2;
@@ -2825,7 +2842,7 @@ namespace VeryFirstProject
                         {
                             for (int intCurrentBalancerUplinkPort = intStartBalancerPort; intCurrentBalancerUplinkPort - 16 <= intCrossPortsOnEachBalancer; intCurrentBalancerUplinkPort++)
                             {
-                                if (boolEshelon && intCurrentBalancerUplinkPort - 16 > intCrossPortsOnEachBalancer/2) intBalancerRecalculatedPort = intCurrentBalancerUplinkPort + 8 - intCrossPortsOnEachBalancer / 2;
+                                if (boolEshelon && intCurrentBalancerUplinkPort - 16 > intCrossPortsOnEachBalancer / 2) intBalancerRecalculatedPort = intCurrentBalancerUplinkPort + 8 - intCrossPortsOnEachBalancer / 2;
                                 else intBalancerRecalculatedPort = intCurrentBalancerUplinkPort;
                                 strCurrentPortName = "p" + intBalancerRecalculatedPort;
                                 arrShapesBalancer100UplinkPorts[intCurrentBalancerFrame, intBalancerRecalculatedPort] = page1.DrawRectangle(doubNextPortStartPointX - 0.5, doubNextPortStartPointY - 0.5, doubNextPortStartPointX, doubNextPortStartPointY - 0.3);
@@ -2900,7 +2917,7 @@ namespace VeryFirstProject
                                     arrShapesBalancerFakeUplinkCircles[intCurrentBalancerFrame, intBalancerRecalculatedPort].Text = arrShapesBypassMonFakeCircles[intCurrentBalancerFrame, intBalancerRecalculatedPort].Text;
                                     arrShapesBalancerFakeUplinkConnections[intCurrentBalancerFrame, intBalancerRecalculatedPort] = page1.DrawRectangle(doubNextPortStartPointX - 1.5 - 0.2 * (intCurrentBalancerUplinkPort - 16) - intCurrentBalancerFrame * 4, doubNextPortStartPointY - 0.4, doubNextPortStartPointX - 1.5 - 0.2 * (intCurrentBalancerUplinkPort - 16) - intCurrentBalancerFrame * 4, doubNextPortStartPointY - 0.4);
                                     arrShapesBalancerFakeUplinkConnections[intCurrentBalancerFrame, intBalancerRecalculatedPort].AutoConnect(arrShapesBypass100MonFakeConnection[intCurrentBalancerFrame, intBalancerRecalculatedPort], Visio.VisAutoConnectDir.visAutoConnectDirNone);
- 
+
                                     //КЖ
                                     for (int inCurrentHydraEnd = 1; inCurrentHydraEnd <= 4; inCurrentHydraEnd++)
                                     {
@@ -3030,10 +3047,11 @@ namespace VeryFirstProject
                             //doubShiftY = doubNextPortStartPointY;
                             doubShiftY = doubNextPortStartPointY + 4;               //подъём
                             intCurrentHighwayCurrentPeremychkaPort = 33;
+                            //if (intCurrentBalancerFrame == 1) intCurrentHighwayPeremyckaNumber = 4; else intCurrentHighwayPeremyckaNumber = 3;                    //Правим тут!
                             for (int inCurrentPeremychka = 1; inCurrentPeremychka <= intCurrentHighwayPeremyckaNumber; inCurrentPeremychka++)
                             {
                                 intOverallPeremychkaNumber++;
-                                
+
                                 //Перемычка. Верхний порт.
                                 intCurrentHighwayCurrentPeremychkaPort--;
                                 strCurrentPortName = "p" + Convert.ToString(intCurrentHighwayCurrentPeremychkaPort - 8);
@@ -3041,12 +3059,12 @@ namespace VeryFirstProject
                                 arrShapesBalancerPeremychkaPorts[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8].Text = strCurrentPortName;
                                 arrShapesBalancerPeremychkaPorts[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.12";
                                 arrShapesBalancerPeremychkaLines[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8] = page1.DrawLine(doubNextPortStartPointX - 1.5 - 0.2 * inCurrentPeremychka - intCurrentBalancerFrame * 2, doubShiftY - 0.4, doubNextPortStartPointX - 0.5, doubShiftY - 0.4);
-                                arrShapesBalancerPeremychkaLines[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8].CellsU["LineColor"].FormulaForceU = "THEMEGUARD(RGB(139,0,139))"; 
+                                arrShapesBalancerPeremychkaLines[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8].CellsU["LineColor"].FormulaForceU = "THEMEGUARD(RGB(139,0,139))";
                                 arrShapesBalancerFakePeremychkaCircles[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8] = page1.DrawOval(doubNextPortStartPointX - 1.1 - 0.2 * (intCurrentHighwayCurrentPeremychkaPort % 2), doubShiftY - 0.2, doubNextPortStartPointX - 0.7 - 0.2 * (intCurrentHighwayCurrentPeremychkaPort % 2), doubShiftY - 0.6);
                                 arrShapesBalancerFakePeremychkaCircles[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.16";
                                 arrShapesBalancerFakePeremychkaCircles[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8].Text = $"{intOverallPeremychkaNumber} Пер";
                                 arrShapesBalancerFakePeremychkaConnections[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort - 8] = page1.DrawRectangle(doubNextPortStartPointX - 1.5 - 0.2 * inCurrentPeremychka - intCurrentBalancerFrame * 2, doubShiftY - 0.4, doubNextPortStartPointX - 1.5 - 0.2 * inCurrentPeremychka - intCurrentBalancerFrame * 2, doubShiftY - 0.4);
-                                arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort] = new Dictionary<string, string>(); 
+                                arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort] = new Dictionary<string, string>();
                                 arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Add("Device_A_Name", strCurrentDeviceHostname);
                                 arrCableJournal_Highway_Peremychka[intCurrentBalancerFrame, intCurrentHighwayCurrentPeremychkaPort].Add("Port_A_Name", strCurrentPortName);
                                 command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}', 15, 1672);";
@@ -3086,7 +3104,7 @@ namespace VeryFirstProject
                                 };
 
                                 //////////  MySQL
-                                
+
 
                                 doubShiftY -= 0.4;
                             };
@@ -3129,7 +3147,7 @@ namespace VeryFirstProject
                                     arrCableJournal_Balancer_Filter[intFilterPointerCross, intHydraPointerCross, intCurrentPortInHydra].Add("Cable_Name", $"{strCurrentDeviceHostname} --- {strFilterModel} ({intFilterPointerCross})");
                                     arrCableJournal_Balancer_Filter[intFilterPointerCross, intHydraPointerCross, intCurrentPortInHydra].Add("Port_A_Name", strCurrentPortName + "-" + intCurrentPortInHydra);
                                     arrCableJournal_Balancer_Filter[intFilterPointerCross, intHydraPointerCross, intCurrentPortInHydra].Add("Device_A_Name", strCurrentDeviceHostname);
-                                    
+
                                     //////////  MySQL
                                     command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}-{intCurrentPortInHydra}', 9, 36);";
                                     command.ExecuteNonQuery();
@@ -3193,7 +3211,7 @@ namespace VeryFirstProject
                                     command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, '{strCurrentPortName}-{intCurrentPortInHydra}', 9, 36);";
                                     command.ExecuteNonQuery();
                                     arrCableJournal_Balancer_Filter[intFilterPointerStraight, intHydraPointerStraight, intCurrentPortInHydra].Add("Cable_ID", Convert.ToString(LastUsedId(command, "Port")));
-                                    
+
                                 };
 
                                 arrShapesBalancerFakeDownlinkLines[intFilterPointerStraight, intHydraPointerStraight] = page1.DrawLine(doubNextPortStartPointX + 0.5, doubNextPortStartPointY - 0.4, doubNextPortStartPointX + 1.5 + 0.2 * intCurrentBalancerDownlinkPort, doubNextPortStartPointY - 0.4);
@@ -3205,7 +3223,7 @@ namespace VeryFirstProject
                                 //Добавляем в спецификацию
                                 list_Specification.Add("NR-QSFP-4X10G-AOC 40G QSFP");
 
-                                
+
                                 if (intHydraPointerStraight == intHydrasOnFilter) intHydraPointerStraight = 0;
 
                                 doubNextPortStartPointY -= 0.4;
@@ -3240,7 +3258,7 @@ namespace VeryFirstProject
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 intCurrentRackSlot = 10;
-                
+
 
                 List<Visio.Shape> listDeviceLogPorts = new List<Visio.Shape>();                            //Массив для LOG-портов фильтров
                 List<Visio.Shape> listDeviceLogCircles = new List<Visio.Shape>();
@@ -3361,7 +3379,7 @@ namespace VeryFirstProject
                             arrShapesFilterPorts[intCurrentFilterFrame, intCurrentFilterPort].Text = strCurrentPortName;
                             arrShapesFilterPorts[intCurrentFilterFrame, intCurrentFilterPort].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.12";
 
-                            
+
                             listHydraLines.Add(page1.DrawLine(doubNextPortStartPointX - 0.7, doubNextPortStartPointY - 0.4, doubNextPortStartPointX - 0.5, doubNextPortStartPointY - 0.4));
                             if (listHydraLines.Count == 1) intCurrentHydraOnFilter++;
 
@@ -3489,7 +3507,7 @@ namespace VeryFirstProject
                         listDeviceLogFakeRects.Add(page1.DrawRectangle(doubStartPointNextShapeX + 0.9, doubStartPointNextShapeY + 1.5, doubStartPointNextShapeX + 0.9, doubStartPointNextShapeY + 1.5));
 
                         // MySQL
-                        command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, 'SP1', 9, 36);"; 
+                        command.CommandText = $"insert into Port (object_id, name, iif_id, type) values ({intDeviceId}, 'SP1', 9, 36);";
                         command.ExecuteNonQuery();
                         listDeviceLogPorts[listDeviceLogPorts.Count - 1].Data3 = Convert.ToString(LastUsedId(command, "Port"));
 
@@ -3499,7 +3517,7 @@ namespace VeryFirstProject
                         for (int intCurrentFilterPort = 1; intCurrentFilterPort <= intPortsNumberOnSingleFilter; intCurrentFilterPort++)
                         {
                             if (arrShapesBypass100MonFakeConnection[intCurrentFilterFrame, intCurrentFilterPort] != null)
-                            { 
+                            {
                                 strCurrentPortName = "Te " + intCurrentFilterPort;
                                 arrShapesFilterPorts[intCurrentFilterFrame, intCurrentFilterPort] = page1.DrawRectangle(doubNextPortStartPointX - 0.5, doubNextPortStartPointY - 0.3, doubNextPortStartPointX, doubNextPortStartPointY - 0.1);
                                 arrShapesFilterPorts[intCurrentFilterFrame, intCurrentFilterPort].Text = strCurrentPortName;
@@ -3518,7 +3536,7 @@ namespace VeryFirstProject
                                 //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                 //КЖ к байпасам
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterFrame, intCurrentFilterPort, 0].Add("Device_B_Name", strCurrentDeviceHostname);
-                            
+
                                 arr_CableJournal_Bypass_Balancer[intCurrentFilterFrame, intCurrentFilterPort, 0].Add("Port_B_Name", strCurrentPortName);
                                 list_CableJournal_Bypass_Balancer.Add(new Dictionary<string, string>());
                                 foreach (string key in arr_CableJournal_Bypass_Balancer[intCurrentFilterFrame, intCurrentFilterPort, 0].Keys)
@@ -3565,18 +3583,18 @@ namespace VeryFirstProject
                 if (boolContinentIpcR300)
                 {
                     strContinentHostname = $"IPC-R{strContinentModel}";
-                    strContinentUplinkPort = "ix2";             
-                    strContinentToMes5332aPort = "ix3";         
-                    strContinentToMes3348Port = "igb0";         
+                    strContinentUplinkPort = "ix2";
+                    strContinentToMes5332aPort = "ix3";
+                    strContinentToMes3348Port = "igb0";
                     //Добавляем в спецификацию
                     list_Specification.Add("IPCR300");
                 }
                 else
                 {
                     strContinentHostname = "IPC-100";
-                    strContinentUplinkPort = "0 или 2";         
-                    strContinentToMes5332aPort = "1";           
-                    strContinentToMes3348Port = "3";            
+                    strContinentUplinkPort = "0 или 2";
+                    strContinentToMes5332aPort = "1";
+                    strContinentToMes3348Port = "3";
                     //Добавляем в спецификацию
                     list_Specification.Add("IPC100");
                 };
@@ -3651,7 +3669,7 @@ namespace VeryFirstProject
                 list_Specification.Add("MES5332A");
 
                 /////////////// Добавляем шасси в БД
-                intCurrentRackSlot+=5;
+                intCurrentRackSlot += 5;
                 intDeviceId = FillRackSlot(command, strObjectIndex, intNetSrvRackId, intCurrentRackSlot, 8, strNameForRackTables);
 
                 List<Visio.Shape> listShapesMesLogDownLinkPorts = new List<Visio.Shape>();
@@ -3682,7 +3700,7 @@ namespace VeryFirstProject
 
                     //Log Lines
                     listShapesMesLogDownLinkLines.Add(page1.DrawLine(doubNextPortStartPointX, doubNextPortStartPointY - 0.1, doubNextPortStartPointX, doubNextPortStartPointY - 1.4));
-                    
+
                     listShapesMesLogDownLinkCircles.Add(page1.DrawOval(doubNextPortStartPointX - 0.2, doubNextPortStartPointY - 0.6 - 0.4 * (intCurrentMesPort % 2), doubNextPortStartPointX + 0.2, doubNextPortStartPointY - 0.2 - 0.4 * (intCurrentMesPort % 2)));
                     listShapesMesLogDownLinkCircles[listShapesMesLogDownLinkCircles.Count - 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.16";
                     listShapesMesLogDownLinkCircles[listShapesMesLogDownLinkCircles.Count - 1].Text = listShapesMesLogDownLinkCircles.Count + " LG";
@@ -3834,7 +3852,7 @@ namespace VeryFirstProject
                 strLocalPortId = Convert.ToString(LastUsedId(command, "Port"));
                 command.CommandText = $"insert into Link (porta, portb) values ({strNeighborPortId}, {strLocalPortId});";
                 command.ExecuteNonQuery();
-                
+
                 //КЖ
                 intGlobalCableCounter++;
                 listCableJournal_Log.Add(new Dictionary<string, string>());
@@ -4122,7 +4140,7 @@ namespace VeryFirstProject
                             arrMes3348UplinkCircles[intMess3348CurrentChassis, 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.16";
                             arrMes3348UplinkCircles[intMess3348CurrentChassis, 1].Text = listDeviceMgmtFakeRects.Count + 1 + " M";
                             visMes5332aTo3348Circle.Text = listDeviceMgmtFakeRects.Count + 1 + " M";
-                            arrMes3348UplinkFakeRects[intMess3348CurrentChassis, 1] = page1.DrawRectangle(doubStartPointNextShapeX - 1.6, doubStartPointNextShapeY + 0.5, doubStartPointNextShapeX - 1.6 , doubStartPointNextShapeY + 0.5);
+                            arrMes3348UplinkFakeRects[intMess3348CurrentChassis, 1] = page1.DrawRectangle(doubStartPointNextShapeX - 1.6, doubStartPointNextShapeY + 0.5, doubStartPointNextShapeX - 1.6, doubStartPointNextShapeY + 0.5);
                             arrMes3348UplinkFakeRects[intMess3348CurrentChassis, 1].AutoConnect(visMes5332aTo3348FakeRect, Visio.VisAutoConnectDir.visAutoConnectDirNone);
                             intGlobalCableCounter++;
                             listCableJournal_Management.Add(new Dictionary<string, string>());
@@ -4311,7 +4329,7 @@ namespace VeryFirstProject
                     xlWorksheet31.Cells[intJournalCurrentRow, 6] = dictCableRecord["Side_B_Port"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 11] = dictCableRecord["Comment"];
                 };
-                
+
                 // WAN - Байпасы
                 intJournalCurrentRow++;
                 xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 1], xlWorksheet31.Cells[intJournalCurrentRow, 11]].Merge();
@@ -4387,7 +4405,7 @@ namespace VeryFirstProject
                                 {
                                     xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 3], xlWorksheet31.Cells[intJournalCurrentRow + 3, 3]].Merge();
                                     xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 3], xlWorksheet31.Cells[intJournalCurrentRow, 3]].VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
-                                };  
+                                };
                             };
                         };
                         xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"];
@@ -4396,7 +4414,7 @@ namespace VeryFirstProject
                         xlWorksheet31.Cells[intJournalCurrentRow, 4] = dictCableRecord["Port_A_Name"];
                         xlWorksheet31.Cells[intJournalCurrentRow, 5] = dictCableRecord["Device_B_Name"];
                         xlWorksheet31.Cells[intJournalCurrentRow, 6] = dictCableRecord["Port_B_Name"];
-                        xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].NumberFormat = "General"; 
+                        xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].NumberFormat = "General";
                         xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].Formula = $"=\"{dictCableRecord["Cable_Type"]}\" & I{intJournalCurrentRow}";
                         xlWorksheet31.Range[xlWorksheet31.Cells[intJournalCurrentRow, 7], xlWorksheet31.Cells[intJournalCurrentRow, 7]].Calculate();
                     };
@@ -4478,7 +4496,7 @@ namespace VeryFirstProject
                 foreach (Dictionary<string, string> dictCableRecord in listCableJournal_Management)
                 {
                     intJournalCurrentRow++;
-                    xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"]; 
+                    xlWorksheet31.Cells[intJournalCurrentRow, 1] = dictCableRecord["Cable_Number"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 2] = dictCableRecord["Cable_Name"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 3] = dictCableRecord["Device_A"];
                     xlWorksheet31.Cells[intJournalCurrentRow, 4] = dictCableRecord["Port_A"];
