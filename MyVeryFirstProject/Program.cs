@@ -194,7 +194,7 @@ namespace VeryFirstProject
                         break;
                     }
                 };
-                if (strFullSiteIndex == null) throw new Exception("Площадка отсутствует в RackTable!");
+                if (strFullSiteIndex == null && strDatabaseName == "use racktables;") throw new Exception("Площадка отсутствует в RackTable!");
 
                 // Закрываем эксель с IP-планом
                 xlWorkbook3.Close();
@@ -521,7 +521,8 @@ namespace VeryFirstProject
 
                     // Запись LAN-портов в массив для КЖ LAN-Bypass.
                     LanWanComment = strCurrentLanHostname + "\n" + Convert.ToString(strCurrentLanPortName);
-                    if (strLanOdfLocation == "без ODF" || strLanOdfLocation == "Без ODF" || strLanOdfLocation == "") { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
+                    if (strLanOdfLocation == "без ODF" || strLanOdfLocation == "Без ODF" || strLanOdfLocation == "") 
+                        { strLanOdfLocation = strCurrentLanHostname; strLanOdfPort = strCurrentLanPortName; LanWanComment = "Прямое включение"; };
                     intCurrentJournalItem++;
                     intGlobalCableCounter++;
                     arrCableJournal_LAN_Bypass[intCurrentOverallLinkNumber, 0] = new Dictionary<string, string>();
