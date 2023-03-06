@@ -194,7 +194,7 @@ namespace VeryFirstProject
                         break;
                     }
                 };
-                if (strFullSiteIndex == null && strDatabaseName == "use racktables;") throw new Exception("Площадка отсутствует в RackTable!");
+                if (strFullSiteIndex == null && strDatabaseName == "use racktables;") throw new Exception("Площадка отсутствует в RackTables!");
 
                 // Закрываем эксель с IP-планом
                 xlWorkbook3.Close();
@@ -229,7 +229,8 @@ namespace VeryFirstProject
                 Dictionary<string, string>[,,] arr_CableJournal_Bypass_Balancer = new Dictionary<string, string>[100, 200, 10];          //Bypass-Balancer
                 Dictionary<string, string>[,,] arrCableJournal_Balancer_Filter = new Dictionary<string, string>[100, 200, 20];           //Balancer-Filter
                 Dictionary<string, string>[] arrCableJournal_Bypass_Filter = new Dictionary<string, string>[200];                        //Bypass-Filter
-                Dictionary<string, string>[,] arrCableJournal_Highway_Peremychka = new Dictionary<string, string>[100, 100];              //Balancer Peremychka
+                Dictionary<string, string>[,] arrCableJournal_Highway_Peremychka = new Dictionary<string, string>[100, 100];             
+                //Balancer Peremychka
 
                 // Создаём список для спецификации (Удалить!)
                 List<string> list_Specification = new List<string>();
@@ -418,7 +419,7 @@ namespace VeryFirstProject
                     strCurrentLanPortName = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 5]).Value2.ToString();
                     strCurrentWanHostname = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 8]).Value2.ToString();
                     strCurrentWanPortName = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 9]).Value2.ToString();
-                    strLanOdfLocation = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 12]).Value2.ToString();
+                    strLanOdfLocation = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 12]).Value2.ToString().Trim();
                     strLanOdfPort = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 13]).Value2.ToString();
                     strWanOdfLocation = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 14]).Value2.ToString();
                     strWanOdfPort = ((Excel.Range)xlWorksheet.Cells[intCurrentRow, 15]).Value2.ToString();
@@ -1845,8 +1846,8 @@ namespace VeryFirstProject
                 };
 
                 // Крестуем IS40
-                bool boolBypassCross = false;
-                //boolBypassCross = true;
+                //bool boolBypassCross = false;
+                bool boolBypassCross = true;
 
                 if (boolBypassCross)
                     for (int intCurrentBalancer = 1; intCurrentBalancer <= intTotalBalancers; intCurrentBalancer++)
@@ -2169,7 +2170,7 @@ namespace VeryFirstProject
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0] = new Dictionary<string, string>();
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Row", Convert.ToString(intCurrentJournalItem));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Number", intFilterPortNoBalancer * 2 - 1 + " БФ");
-                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Name", strBypassModel + " --- " + strFilterModel);
+                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Cable_Name", strCurrentDeviceHostname + " --- " + strFilterModel + " (1)");
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2 - 1, 0].Add("Device_A_Name", strCurrentDeviceHostname);
@@ -2240,7 +2241,7 @@ namespace VeryFirstProject
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0] = new Dictionary<string, string>();
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Row", Convert.ToString(intCurrentJournalItem));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Number", intFilterPortNoBalancer * 2 + " БФ");
-                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Name", strBypassModel + " --- " + strFilterModel);
+                                    arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Cable_Name", strCurrentDeviceHostname + " --- " + strFilterModel + " (1)");
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Port_ID", "Mon-" + Convert.ToString(intCurrentBypassPort));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Port_A_Name", Convert.ToString(strCurrentPortName));
                                     arr_CableJournal_Bypass_Balancer[intCurrentFilterNoBalancer, intFilterPortNoBalancer * 2, 0].Add("Device_A_Name", strCurrentDeviceHostname);
