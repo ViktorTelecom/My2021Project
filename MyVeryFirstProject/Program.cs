@@ -3104,9 +3104,10 @@ namespace VeryFirstProject
                         if (boolEshelon)
                         {
                             //Console.WriteLine($"Перемычек на хайвэй {intCurrentBalancerFrame}: {intCurrentHighwayPeremyckaNumber}");
+                            //Console.WriteLine($"Перемычек на хайвэй {intCurrentBalancerFrame}: {intCurrentHighwayPeremyckaNumber}");
                             doubNextPortStartPointY -= 0.2;
                             //doubShiftY = doubNextPortStartPointY;
-                            doubShiftY = doubNextPortStartPointY - 1;               //подъём; для десяток и соток разные значения подъёма нужны; как это сделать?
+                            doubShiftY = doubNextPortStartPointY + 4;               //подъём; для десяток и соток разные значения подъёма нужны; как это сделать?
                             intCurrentHighwayCurrentPeremychkaPort = 33;
                             //if (intCurrentBalancerFrame == 1) intCurrentHighwayPeremyckaNumber = 4; else intCurrentHighwayPeremyckaNumber = 3;                    //Правим тут!
                             for (int inCurrentPeremychka = 1; inCurrentPeremychka <= intCurrentHighwayPeremyckaNumber; inCurrentPeremychka++)
@@ -3995,11 +3996,11 @@ namespace VeryFirstProject
                     listShapesSrvPortsToLog[listShapesSrvPortsToLog.Count - 1].Text = "XGE-1 (верхний)";
                     listShapesSrvPortsToLog[listShapesSrvPortsToLog.Count - 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.08";
                     //Log Lines
-                    listDeviceLogLines.Add(page1.DrawLine(doubSfsdDeviceX - 5, doubSfsdDeviceY + 0.2, doubSfsdDeviceX - 0.5, doubSfsdDeviceY + 0.2));
+                    listDeviceLogLines.Add(page1.DrawLine(doubSfsdDeviceX - 5 - 0.8 * intCurrentSpfsDevice, doubSfsdDeviceY + 0.2, doubSfsdDeviceX - 0.5, doubSfsdDeviceY + 0.2));
                     listDeviceLogCircles.Add(page1.DrawOval(doubSfsdDeviceX - 1.1, doubSfsdDeviceY, doubSfsdDeviceX - 0.7, doubSfsdDeviceY + 0.4));
                     listDeviceLogCircles[listDeviceLogCircles.Count - 1].get_CellsSRC((short)Visio.VisSectionIndices.visSectionCharacter, (short)Visio.VisRowIndices.visRowFirst, (short)Visio.VisCellIndices.visCharacterSize).FormulaForceU = "0.16";
                     listDeviceLogCircles[listDeviceLogCircles.Count - 1].Text = listDeviceLogPorts.Count + 1 + intCurrentSpfsDevice + " LG";
-                    listDeviceLogFakeRects.Add(page1.DrawRectangle(doubSfsdDeviceX - 5, doubSfsdDeviceY + 0.2, doubSfsdDeviceX - 5, doubSfsdDeviceY + 0.2));
+                    listDeviceLogFakeRects.Add(page1.DrawRectangle(doubSfsdDeviceX - 5 - 0.8 * intCurrentSpfsDevice, doubSfsdDeviceY + 0.2, doubSfsdDeviceX - 5 - 0.8 * intCurrentSpfsDevice, doubSfsdDeviceY + 0.2));
                     listDeviceLogFakeRects[listDeviceLogFakeRects.Count - 1].AutoConnect(listShapesMesLogUpLinkFakeRects[intCurrentLogUplinkPort], Visio.VisAutoConnectDir.visAutoConnectDirNone);
 
                     /////////////// Добавляем шасси в БД
