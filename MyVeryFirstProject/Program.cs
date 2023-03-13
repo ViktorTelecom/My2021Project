@@ -1421,7 +1421,7 @@ namespace VeryFirstProject
 
                 // Подсчёт количества занятых байпас-сегментов в IBS1UP. Чтобы завявить меньше MGMT-портов на шасси.
                 intDifference = intTotalOverallLinkNumber % 4;
-                Console.WriteLine($"Остаток от деления: {intDifference}");
+                //Console.WriteLine($"Остаток от деления: {intDifference}");
                 //Console.WriteLine($"Отрисовка байпасов начата.");
 
                 // Проход по всем десяточным байпасам (IBS1UP).
@@ -2064,18 +2064,18 @@ namespace VeryFirstProject
                                         intEshelonBalancerPortShift = 8;
                                         if (listEshelonLanHydraLines.Count == 0) intGlobalCableCounter++;
                                         //if (((intCurrentBypassPort - 1) % 4 == 0 && boolFinishedFillingSingleBalancer) || iCurrentOverallMonPort == intTotalOverallLinkNumber * 2)
-                                        Console.WriteLine($"Линк {iCurrentOverallMonPort} из {intTotalOverallLinkNumber * 2}");
+                                        //Console.WriteLine($"Линк {iCurrentOverallMonPort} из {intTotalOverallLinkNumber * 2}");
                                         if (((intCurrentBypassPort - 1) % 4 == 0 && boolFinishedFillingSingleBalancer && iCurrentOverallMonPort <= intTotalOverallLinkNumber * 2) || iCurrentOverallMonPort == intTotalOverallLinkNumber * 2)
                                         {
                                             intCurrentPortInChassis++;
-                                            Console.WriteLine($"Порт байпаса: {intCurrentBypassPort}, порт хайвэя: {intCurrentPortInChassis}.");
+                                            //Console.WriteLine($"Порт байпаса: {intCurrentBypassPort}, порт хайвэя: {intCurrentPortInChassis}.");
                                         };
                                         if ((intCurrentBypassPort - 1) % 20 == 0)
                                         {
                                             if (intCurrentBalancerChassis > 0)
                                             {
                                                 arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis - 1;
-                                                Console.WriteLine($"На хайвэе {intCurrentBalancerChassis} последний заполненный порт: {intCurrentPortInChassis - 1}.");
+                                                //Console.WriteLine($"На хайвэе {intCurrentBalancerChassis} последний заполненный порт: {intCurrentPortInChassis - 1}.");
                                             };
                                             boolNotEnoughPortsForLag = false;
                                             intCurrentBalancerChassis++;
@@ -2089,7 +2089,7 @@ namespace VeryFirstProject
                                         intCurrentLagNumber++;
                                         arrLagIteration[intCurrentLagNumber] = 0;
                                     };
-                                    Console.WriteLine($"Текущий присвоенный порт на шасси балансировщика: {intCurrentPortInChassis}");
+                                    //Console.WriteLine($"Текущий присвоенный порт на шасси балансировщика: {intCurrentPortInChassis}");
                                 }
                                 else
                                 {
@@ -2107,9 +2107,9 @@ namespace VeryFirstProject
                                                 intCurrentPortInChassis = arrUplinkPortsOnBalancer[intCurrentBalancerChassis];
                                             }
 
-                                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                                            Console.WriteLine($"IS40 Chassis {intCurrentBypassDevice}, IS40 Port: {intCurrentBypassPort}");
-                                            Console.WriteLine($"ELB Chassis {intCurrentBalancerChassis}, ELB Port: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
+                                            //Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                                            //Console.WriteLine($"IS40 Chassis {intCurrentBypassDevice}, IS40 Port: {intCurrentBypassPort}");
+                                            //Console.WriteLine($"ELB Chassis {intCurrentBalancerChassis}, ELB Port: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
                                         }
                                         else
                                         {
@@ -2170,7 +2170,7 @@ namespace VeryFirstProject
                                             intHydraEnd = 3;
                                         };
                                     }
-                                    Console.WriteLine($"Порт IS40: {strCurrentPortName}, Хайвэй: {intCurrentBalancerChassis}, Порт на хайвэе: {intCurrentPortInChassis}");
+                                    //Console.WriteLine($"Порт IS40: {strCurrentPortName}, Хайвэй: {intCurrentBalancerChassis}, Порт на хайвэе: {intCurrentPortInChassis}");
                                     arrShapesBypass10_MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis, intCurrentSubslotCounterInBypass] = page1.DrawRectangle(doubNextPortStartPointX + 2, doubNextPortStartPointY - 0.3, doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.1);
                                     arrShapesBypass10_MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis, intCurrentSubslotCounterInBypass].Data1 = Convert.ToString(intCurrentBypassDevice);
                                     arrShapesBypass10_MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis, intCurrentSubslotCounterInBypass].Data2 = Convert.ToString(intCurrentBypassPort);
@@ -2251,7 +2251,7 @@ namespace VeryFirstProject
                                             intHydraEnd = 4;
                                         };
                                     };
-                                    Console.WriteLine($"Порт IS40: {strCurrentPortName}, Хайвэй: {intCurrentBalancerChassis}, Порт на хайвэе: {intCurrentPortInChassis + intEshelonBalancerPortShift}");
+                                    //Console.WriteLine($"Порт IS40: {strCurrentPortName}, Хайвэй: {intCurrentBalancerChassis}, Порт на хайвэе: {intCurrentPortInChassis + intEshelonBalancerPortShift}");
                                     arrShapesBypass10_MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intCurrentSubslotCounterInBypass * 2] = page1.DrawRectangle(doubNextPortStartPointX + 2, doubNextPortStartPointY - 0.5, doubNextPortStartPointX + 2.5, doubNextPortStartPointY - 0.3);
                                     arrShapesBypass10_MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intCurrentSubslotCounterInBypass * 2].Data1 = Convert.ToString(intCurrentBypassDevice);
                                     arrShapesBypass10_MonPorts[intCurrentBalancerChassis, intCurrentPortInChassis + intEshelonBalancerPortShift, intCurrentSubslotCounterInBypass * 2].Data2 = Convert.ToString(intCurrentBypassPort);
@@ -2487,7 +2487,7 @@ namespace VeryFirstProject
                         };
                     };  //Конец рисования шасси байпасов
                     if (!boolBypassCross) arrUplinkPortsOnBalancer[intCurrentBalancerChassis] = intCurrentPortInChassis;
-                    Console.WriteLine($"Записали в шасси балансера {intCurrentBalancerChassis} последний номер порта: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
+                    //Console.WriteLine($"Записали в шасси балансера {intCurrentBalancerChassis} последний номер порта: {arrUplinkPortsOnBalancer[intCurrentBalancerChassis]}");
                     if (boolEshelon) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;                                                                               //Правим тут!
                     //if (boolEshelon && intCurrentBalancerChassis < intTotalBalancers && intTotalBalancers > 1) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
                     //if (boolEshelon && intCurrentBalancerChassis < Convert.ToInt32(strBalancerNumberFromInput)) arrUplinkPortsOnBalancer[intCurrentBalancerChassis]--;
@@ -2940,11 +2940,11 @@ namespace VeryFirstProject
 
                         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Draw ELB to 10G Uplink Ports (IS40 & IBS1UP)   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                        Console.WriteLine($"Портов на балансере {intCurrentBalancerFrame}: {arrUplinkPortsOnBalancer[intCurrentBalancerFrame]}");
-                        Console.WriteLine($"Гидр, посчитанных на IS40: {intBypassIs40HydrasTotal}");
+                        //Console.WriteLine($"Портов на балансере {intCurrentBalancerFrame}: {arrUplinkPortsOnBalancer[intCurrentBalancerFrame]}");
+                        //Console.WriteLine($"Гидр, посчитанных на IS40: {intBypassIs40HydrasTotal}");
                         if (intBypassIs40HydrasTotal > 0)
                         {
-                            Console.WriteLine($"Балансер: {intCurrentBalancerFrame}, Последний порт: {arrUplinkPortsOnBalancer[intCurrentBalancerFrame]}.");
+                            //Console.WriteLine($"Балансер: {intCurrentBalancerFrame}, Последний порт: {arrUplinkPortsOnBalancer[intCurrentBalancerFrame]}.");
                             if (intBypassIs40HydrasTotal - intUsedUplinkHydrasCounter > intMaximumUplinkPortsOnBalancer) intLastUplinkPortOnBalancer = intMaximBalancerPortNumber;
                             else intLastUplinkPortOnBalancer = 16 + intBypassIs40HydrasTotal - intUsedUplinkHydrasCounter;
                             for (int intCurrentBalancerUplinkPort = intStartBalancerPort; intCurrentBalancerUplinkPort <= arrUplinkPortsOnBalancer[intCurrentBalancerFrame]; intCurrentBalancerUplinkPort++)
@@ -2974,7 +2974,7 @@ namespace VeryFirstProject
                                     {
                                         if (arr_CableJournal_Bypass_Balancer[intCurrentBalancerFrame, intBalancerRecalculatedPort, inCurrentHydraEnd] != null)
                                         {
-                                            Console.Write($"Балансер: {intCurrentBalancerFrame}, Порт: {intBalancerRecalculatedPort}, Гидра: {inCurrentHydraEnd}");
+                                            //Console.Write($"Балансер: {intCurrentBalancerFrame}, Порт: {intBalancerRecalculatedPort}, Гидра: {inCurrentHydraEnd}");
                                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerFrame, intBalancerRecalculatedPort, inCurrentHydraEnd].Add("Device_B_Name", strCurrentDeviceHostname);
                                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerFrame, intBalancerRecalculatedPort, inCurrentHydraEnd].Add("Port_B_Name", strCurrentPortName + "-" + inCurrentHydraEnd);
                                             arr_CableJournal_Bypass_Balancer[intCurrentBalancerFrame, intBalancerRecalculatedPort, inCurrentHydraEnd].Add("Cable_Number", arrShapesBalancerFakeUplinkCircles[intCurrentBalancerFrame, intBalancerRecalculatedPort].Text);
@@ -3031,7 +3031,7 @@ namespace VeryFirstProject
 
 
 
-                                        Console.WriteLine($"Балансировщик {intCurrentBalancerFrame}, порт: {intBalancerRecalculatedPort + 8}");
+                                        //Console.WriteLine($"Балансировщик {intCurrentBalancerFrame}, порт: {intBalancerRecalculatedPort + 8}");
 
                                         if (arrShapesBypass100MonFakeConnection[intCurrentBalancerFrame, intBalancerRecalculatedPort + 8] != null)
                                         {
